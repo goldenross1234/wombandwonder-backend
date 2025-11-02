@@ -22,3 +22,13 @@ def profile_view(request):
     """
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
+def perform_create(self, serializer):
+    request_user = self.request.user
+
+    # 🛡️ Only superusers or owners can assign roles above "staff"
+    if not request_user.is_superuser and serializer.validated_data.get("role") in ["owner", "supervisor", "superuser"]:
+        raise PermissionDenied("You are not allowed to assign this role.")
+
+    serializer.save()
+

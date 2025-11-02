@@ -1,7 +1,7 @@
 # api/views.py
 from rest_framework import viewsets, permissions
 from .permissions import IsStaffOrAbove
-from .models import Service, Location, Promo, HomeBanner, HeroSection, AboutPage, BlogPost, ServiceCategory, AboutSection
+from .models import Service, Location, Promo, HomeBanner, HeroSection, AboutPage, BlogPost, ServiceCategory, AboutSection, Patient
 from .serializers import (
     ServiceSerializer, 
     LocationSerializer, 
@@ -11,7 +11,8 @@ from .serializers import (
     AboutPageSerializer, 
     BlogPostSerializer, 
     ServiceCategorySerializer, 
-    AboutSectionSerializer
+    AboutSectionSerializer,
+    PatientSerializer
 )
 from rest_framework.permissions import AllowAny
 
@@ -128,3 +129,11 @@ class AboutSectionViewSet(viewsets.ModelViewSet):
         if not about_page_id:
             raise serializers.ValidationError({"detail": "Missing about_page ID"})
         serializer.save()
+
+class PatientViewSet(viewsets.ModelViewSet):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

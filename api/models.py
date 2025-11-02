@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
 from datetime import date
-#from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
 
 #User = get_user_model()
 from django.conf import settings
@@ -206,3 +206,76 @@ class User(AbstractUser):
 
     def has_admin_privileges(self):
         return self.role in ["superuser", "owner", "supervisor"]
+
+#For Patients
+class Patient(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="patient_profile")
+    full_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField(null=True, blank=True)
+    contact_number = models.CharField(max_length=15, blank=True)
+    address = models.TextField(blank=True)
+    emergency_contact = models.CharField(max_length=255, blank=True)
+    blood_type = models.CharField(max_length=5, blank=True)
+    medical_history = models.TextField(blank=True)
+    profile_image = models.ImageField(upload_to="patients/", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.full_name or self.user.username}"
+    
+# 🩷 1️⃣ Patient Profile
+class Patient(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="patient_profile")
+    phone = models.CharField(max_length=20, blank=True)
+    birth_date = models.DateField(null=True, blank=True)
+    address = models.TextField(blank=True)
+    emergency_contact = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} (Patient)"
+
+
+# 🩺 2️⃣ Appointment Management
+class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending Confirmation"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="appointments")
+    date = models.DateField()
+    time = models.TimeField()
+    service = models.CharField(max_length=100)
+    notes = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    assigned_staff = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="assigned_appointments")
+
+    def __str__(self):
+        return f"{self.patient.user.username} - {self.service} on {self.date}"
+
+
+# 🔔 3️⃣ Notification System
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    message = models.CharField(max_length=255)
+    read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user.username}"
+
+
+# 📅 4️⃣ Business Calendar
+class BusinessDay(models.Model):
+    date = models.DateField(unique=True)
+    is_open = models.BooleanField(default=True)
+    note = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return f"{self.date} - {'Open' if self.is_open else 'Closed'}"

@@ -1,10 +1,10 @@
 # api/serializers.py
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Service, Location, Promo, HomeBanner, HeroSection, AboutPage, BlogPost, ServiceCategory, User, AboutSection
+from .models import Service, Location, Promo, HomeBanner, HeroSection, AboutPage, BlogPost, ServiceCategory, User, AboutSection, Patient, Appointment, Notification, BusinessDay
 from django.utils.text import slugify
 
-#User = get_user_model()
+User = get_user_model()
 from django.conf import settings
 
 
@@ -171,12 +171,110 @@ class BlogPostSerializer(serializers.ModelSerializer):
 
 
 # 👥 USER
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
         fields = [
             "id", "username", "email", "first_name", "last_name",
-            "role", "is_active", "is_staff", "is_superuser",
+            "password", "role", "is_active", "is_staff", "is_superuser",
             "last_login", "date_joined"
         ]
-        read_only_fields = ["id", "is_active", "is_staff", "is_superuser", "last_login", "date_joined"]
+        read_only_fields = ["id", "is_staff", "is_superuser", "last_login", "date_joined"]
+
+    def create(self, validated_data):
+        password = validated_data.pop("password", None)
+        role = validated_data.get("role", "staff")
+        user = User(**validated_data)
+
+        # ✅ Always hash password
+        if password:
+            user.set_password(password)
+
+        # ✅ Role-based privilege logic
+        if role == "superuser":
+            user.is_superuser = True
+            user.is_staff = True
+        elif role in ["owner", "supervisor", "staff"]:
+            user.is_superuser = False
+            user.is_staff = True
+        else:
+            user.is_superuser = False
+            user.is_staff = False
+
+        user.is_active = True
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if password:
+            instance.set_password(password)
+
+        # ✅ Auto-adjust admin flags if role changed
+        if instance.role == "superuser":
+            instance.is_superuser = True
+            instance.is_staff = True
+        elif instance.role in ["owner", "supervisor", "staff"]:
+            instance.is_superuser = False
+            instance.is_staff = True
+        else:
+            instance.is_superuser = False
+            instance.is_staff = False
+
+        instance.save()
+        return instance
+
+class PatientSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source="user.email", read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+
+    class Meta:
+        model = Patient
+        fields = [
+            "id", "username", "email", "full_name", "date_of_birth",
+            "contact_number", "address", "emergency_contact",
+            "blood_type", "medical_history", "profile_image",
+            "created_at", "updated_at"
+        ]
+        read_only_fields = ["created_at", "updated_at"]
+        
+class PatientSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Patient
+        fields = ["id", "user", "phone", "birth_date", "address", "emergency_contact"]
+
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    patient = serializers.StringRelatedField(read_only=True)
+    assigned_staff = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = "__all__"
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = "__all__"
+
+
+class BusinessDaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BusinessDay
+        fields = "__all__"
