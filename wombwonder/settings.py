@@ -29,13 +29,16 @@ SECRET_KEY = 'django-insecure--e@(gvs1%005-)k-pvsf5tb$%*uyodxl7syqd8ie-21rox1v#v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 # Allow your React app
 CORS_ALLOW_ALL_ORIGINS = True  # for development
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 
@@ -59,6 +62,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'channels',
 
     # Your app
     'api',
@@ -103,6 +107,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'wombwonder.wsgi.application'
+ASGI_APPLICATION = 'wombwonder.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [("127.0.0.1", 6379)]},
+    },
+}
 
 
 # Database
@@ -119,14 +131,16 @@ DATABASES = {
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+        "rest_framework.permissions.AllowAny",  # ✅ allow public POSTs
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
 }
+
 
 
 SIMPLE_JWT = {
@@ -183,3 +197,25 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
+
+# Email setup (development)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "noreply@wombandwonder.com"
+
+# ✅ When in production, switch to real SMTP:
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = "your_gmail@gmail.com"
+# EMAIL_HOST_PASSWORD = "your_app_specific_password"
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+TIME_ZONE = 'Asia/Manila'
+USE_TZ = True
