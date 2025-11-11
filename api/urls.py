@@ -22,7 +22,7 @@ from .views import (
 from .views_user import UserViewSet
 from .views_auth import CustomTokenObtainPairView
 from .views_profile import MyProfileView
-from .views_queue import QueueViewSet, join_queue
+from .views_queue import QueueViewSet, join_queue, serve_patient, get_reports, clear_queue
 
 
 # 🩺 Patient Management (new module)
@@ -78,4 +78,9 @@ urlpatterns = [
     
     # ✅ Queue join route
     path("queue-join/", join_queue, name='join-queue'),
+    path("queue/serve/<int:pk>/", serve_patient),
+    path("queue/reports/", get_reports),
+    path("queue/clear/", clear_queue),
+
+
 ]

@@ -1,7 +1,7 @@
 # api/serializers.py
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Service, Location, Promo, HomeBanner, HeroSection, AboutPage, BlogPost, ServiceCategory, User, AboutSection, Patient, Appointment, Notification, BusinessDay, QueueEntry
+from .models import Service, Location, Promo, HomeBanner, HeroSection, AboutPage, BlogPost, ServiceCategory, User, AboutSection, Patient, Appointment, Notification, BusinessDay, QueueEntry, QueueRepository
 from django.utils.text import slugify
 
 User = get_user_model()
@@ -284,3 +284,9 @@ class QueueSerializer(serializers.ModelSerializer):
         model = QueueEntry
         fields = "__all__"
         read_only_fields = ["queue_number", "created_at", "served_at"]
+        
+        
+class QueueRepositorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QueueRepository
+        fields = "__all__"

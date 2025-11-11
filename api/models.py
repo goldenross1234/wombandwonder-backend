@@ -326,3 +326,17 @@ class QueueEntry(models.Model):
 
     def __str__(self):
         return f"{self.queue_number} - {self.get_status_display()}"
+    
+class QueueResetLog(models.Model):
+    last_reset = models.DateField(auto_now_add=True)
+
+class QueueRepository(models.Model):
+    queue_number = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
+    age = models.IntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    priority = models.CharField(max_length=20)
+    served_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.queue_number} - {self.name}"
