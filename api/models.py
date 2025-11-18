@@ -318,8 +318,11 @@ class QueueEntry(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
     )
     queue_number = models.CharField(max_length=10, unique=True)
-    name = models.CharField(max_length=100, default="Guest") 
+    name = models.CharField(max_length=100, default="Guest")
+    age = models.IntegerField(null=True, blank=True)  # ← you already had this in form
+    notes = models.TextField(blank=True, null=True)   # ← optional notes
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="regular")
+    selected_service = models.CharField(max_length=200, blank=True, null=True)  # ✅ NEW
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="waiting")
     created_at = models.DateTimeField(default=timezone.now)
     served_at = models.DateTimeField(null=True, blank=True)
@@ -336,6 +339,7 @@ class QueueRepository(models.Model):
     age = models.IntegerField(null=True, blank=True)
     notes = models.TextField(blank=True)
     priority = models.CharField(max_length=20)
+    selected_service = models.CharField(max_length=200, blank=True, null=True)  # ✅ NEW
     served_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
