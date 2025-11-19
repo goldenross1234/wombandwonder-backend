@@ -29,12 +29,23 @@ SECRET_KEY = 'django-insecure--e@(gvs1%005-)k-pvsf5tb$%*uyodxl7syqd8ie-21rox1v#v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-# Allow your React app
-CORS_ALLOW_ALL_ORIGINS = True  # for development
+CORS_ALLOW_ALL_ORIGINS = False
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://localhost:3000",
+    "https://wombandwonder-frontend.vercel.app",
+    "https://8000-firebase-wombwonder-backend-1763456510204.cluster-aic6jbiihrhmyrqafasatvzbwe.cloudworkstations.dev",
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "https://localhost:3000",
+    "https://wombandwonder-frontend.vercel.app",
+    "https://8000-firebase-wombwonder-backend-1763456510204.cluster-aic6jbiihrhmyrqafasatvzbwe.cloudworkstations.dev",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 
 #MEDIA_URL = '/media/'
