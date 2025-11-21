@@ -85,26 +85,32 @@ class HeroSectionSerializer(serializers.ModelSerializer):
 # 💝 ABOUT PAGE
 
 class AboutSectionSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
+    image = serializers.FileField(required=False, allow_null=True)
 
     class Meta:
         model = AboutSection
         fields = [
             'id',
-            'about_page',   # 👈 include the foreign key
+            'about_page',
             'title',
             'content',
             'image',
             'active',
             'order',
         ]
-        read_only_fields = ['about_page']
 
-    def get_image(self, obj):
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
         request = self.context.get('request')
-        if obj.image:
-            return request.build_absolute_uri(obj.image.url) if request else obj.image.url
-        return None
+
+        if instance.image:
+            if request:
+                data['image'] = request.build_absolute_uri(instance.image.url)
+            else:
+                data['image'] = instance.image.url
+
+        return data
+
 
         
 class AboutPageSerializer(serializers.ModelSerializer):

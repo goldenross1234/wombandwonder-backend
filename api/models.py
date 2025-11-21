@@ -139,7 +139,7 @@ class AboutSection(models.Model):
     )
     title = models.CharField(max_length=255)
     content = models.TextField()
-    image = models.ImageField(upload_to='about/sections/', blank=True, null=True)
+    image = models.FileField(upload_to='about/sections/', blank=True, null=True)
     active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
 

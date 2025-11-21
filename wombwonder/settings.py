@@ -29,7 +29,9 @@ SECRET_KEY = 'django-insecure--e@(gvs1%005-)k-pvsf5tb$%*uyodxl7syqd8ie-21rox1v#v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-CORS_ALLOW_ALL_ORIGINS = False
+ALLOWED_HOSTS = ["*"]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -43,6 +45,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost:3000",
     "https://wombandwonder-frontend.vercel.app",
     "https://8000-firebase-wombwonder-backend-1763456510204.cluster-aic6jbiihrhmyrqafasatvzbwe.cloudworkstations.dev",
+    "https://*.ngrok-free.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
